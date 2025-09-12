@@ -53,3 +53,34 @@ func Publish(queueName string, body []byte) error {
 
 	return err
 }
+
+func Consume(queueName string) (<-chan amqp091.Delivery, error) {
+	_, err := ch.QueueDeclare(
+		queueName,
+		true,  // durable
+		false, // auto-delete
+		false, // exclusive
+		false, // no-wait
+		nil,
+	)
+	if err != nil {
+		slog.Error("Failed to declare queue", "error", err)
+		return nil, err
+	}
+
+	msgs, err := ch.Consume(
+		queueName,
+		"",    // consumer
+		true,  // auto-ack
+		false, // exclusive
+		false, // no-local
+		false, // no-wait
+		nil,
+	)
+	if err != nil {
+		slog.Error("Failed to register consumer", "error", err)
+		return nil, err
+	}
+
+	return msgs, nil
+}

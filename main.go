@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"io"
 	"tickets/config"
 	"tickets/controllers"
 	db "tickets/db/sqlc"
@@ -12,14 +13,37 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/natefinch/lumberjack"
 )
 
+func initLogger() *slog.Logger {
+	// Configure file logging with lumberjack
+	logFile := &lumberjack.Logger{
+		Filename:   "./logger/app.log",
+		MaxSize:    10, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28,   // days
+		Compress:   true, // compress with .gz
+	}
+
+	// Create a multi-writer that writes to both file and stdout
+	multiWriter := io.MultiWriter(logFile, os.Stdout)
+
+	// Create a single handler with the multi-writer
+	handler := slog.NewJSONHandler(multiWriter, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+
+	return logger
+}
 func main() {
 
 	// Setup logger
 	gin.SetMode(gin.ReleaseMode)
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	slog.SetDefault(logger)
+	initLogger()
 
 	// Initialize DB connection
 	dbConn, err := config.DBConnection()

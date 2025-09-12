@@ -1,0 +1,8 @@
+{"time":"2025-09-12T15:50:40.476154+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-12T15:50:47.811544+03:00","level":"ERROR","msg":"Failed to create user","error":"Error 1062 (23000): Duplicate entry 'test2@gmail.com' for key 'users.email'"}
+{"time":"2025-09-12T15:51:35.279757+03:00","level":"INFO","msg":"Published message to queue","queue":"user_events","body":"{\"payload\":{\"email\":\"test3@gmail.com\",\"full_name\":\"\"},\"type\":\"user.created\"}"}
+{"time":"2025-09-12T15:53:33.308259+03:00","level":"INFO","msg":"Users listed successfully","count":5}
+{"time":"2025-09-12T15:57:47.743658+03:00","level":"INFO","msg":"Users listed successfully","count":5}
+{"time":"2025-09-12T15:57:52.810387+03:00","level":"ERROR","msg":"Failed to create user","error":"Error 1062 (23000): Duplicate entry 'test3@gmail.com' for key 'users.email'"}
+{"time":"2025-09-12T15:58:03.445961+03:00","level":"INFO","msg":"Published message to queue","queue":"user_events","body":"{\"payload\":{\"email\":\"test12@gmail.com\",\"full_name\":\"test\"},\"type\":\"user.created\"}"}
+{"time":"2025-09-12T15:59:24.120447+03:00","level":"INFO","msg":"Database connection established successfully"}
