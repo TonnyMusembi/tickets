@@ -1,0 +1,16 @@
+version: "2"
+sql:
+  - schema: "db/schema.sql"
+    queries: "db/queries.sql"
+    engine: "mysql"
+    gen:
+      go:
+        package: "db"
+        out: "db/sqlc"
+        sql_package: "database/sql" # Choose between "database/sql" or "pgx/v5"
+        emit_db_tags: true          # Add db:"" struct tags
+        emit_prepared_queries: true # Generate prepared statements
+        emit_interface: false       # Generate querier interface
+        emit_exact_table_names: false
+        emit_empty_slices: true
+    

@@ -1,0 +1,103 @@
+package controllers
+
+import (
+	"database/sql"
+	"net/http"
+
+	"strconv"
+
+	"log/slog"
+	db "tickets/db/sqlc"
+
+	"github.com/gin-gonic/gin"
+)
+
+type UserController struct {
+	Queries *db.Queries
+	DB      *sql.DB
+}
+
+// Create User
+type CreateUserRequest struct {
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	// Password string `json:"password"`
+}
+
+func (u *UserController) CreateUser(c *gin.Context) {
+	var req CreateUserRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		slog.Error("Invalid request payload", "error", err)
+		return
+	}
+
+	user, err := u.Queries.CreateUser(c, db.CreateUserParams{
+		FullName: req.FullName,
+		Email:    req.Email,
+		// Password: req.Password,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
+		slog.Error("Failed to create user", "error", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+	// slog.Info("User created successfully", "user_id", user.ID)
+}
+
+// List Users
+func (uc *UserController) ListUsers(c *gin.Context) {
+	users, err := uc.Queries.ListUsers(c.Request.Context(), db.ListUsersParams{
+		Limit:  10,
+		Offset: 0,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list users"})
+		slog.Error("Failed to list users", "error", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users})
+	slog.Info("Users listed successfully", "count", len(users))
+}
+
+func (u *UserController) UpdateUser(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	var req struct {
+		FullName string `json:"full_name"`
+		Email    string `json:"email"`
+
+		// Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		slog.Error("Invalid request payload", "error", err)
+		return
+	}
+	err = u.Queries.UpdateUser(c, db.UpdateUserParams{
+		ID:       id,
+		FullName: req.FullName,
+		Email:    req.Email,
+		// Password: req.Password,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update user"})
+		slog.Error("Failed to update user", "error", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "user updated successfully"})
+	slog.Info("User updated successfully", "user_id", id)
+}
