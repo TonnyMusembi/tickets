@@ -1,1 +1,3 @@
-logger/*.app
+logger/*.app.logs
+.env
+.DS_Store
