@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"net/http"
-
 	"strconv"
 
 	"log/slog"
 	db "tickets/db/sqlc"
+	"tickets/publish"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +39,21 @@ func (u *UserController) CreateUser(c *gin.Context) {
 		Email:    req.Email,
 		// Password: req.Password,
 	})
+
+	if err == nil {
+		payload := map[string]interface{}{
+			"type": "user.created",
+			"payload": map[string]string{
+				"email":     req.Email,
+				"full_name": req.FullName,
+			},
+		}
+		if data, err := json.Marshal(payload); err == nil {
+			publish.Publish("user_events", data)
+		} else {
+			slog.Error("Failed to marshal user created event", "error", err)
+		}
+	}
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
