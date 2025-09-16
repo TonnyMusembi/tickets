@@ -40,29 +40,34 @@ func (u *UserController) CreateUser(c *gin.Context) {
 		// Password: req.Password,
 	})
 
-	if err == nil {
-		payload := map[string]interface{}{
-			"type": "user.created",
-			"payload": map[string]string{
-				"email":     req.Email,
-				"full_name": req.FullName,
-			},
-		}
-		if data, err := json.Marshal(payload); err == nil {
-			publish.Publish("user_events", data)
-		} else {
-			slog.Error("Failed to marshal user created event", "error", err)
-		}
-	}
-
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		slog.Error("Failed to create user", "error", err)
 		return
 	}
 
+	payload := map[string]interface{}{
+		"type": "user.created",
+		"payload": map[string]string{
+			"email":     req.Email,
+			"full_name": req.FullName,
+		},
+	}
+	if data, err := json.Marshal(payload); err == nil {
+		publish.Publish("user_events", data)
+	} else {
+		slog.Error("Failed to marshal user created event", "error", err)
+	}
+
 	c.JSON(http.StatusOK, gin.H{"user": user})
-	// slog.Info("User created successfully", "user_id", user.ID)
+
+	userID, err := user.LastInsertId()
+	if err != nil {
+		slog.Error("Failed to get last insert ID", "error", err)
+	} else {
+		slog.Info("User created successfully", "user_id", userID)
+	}
+
 }
 
 // List Users
