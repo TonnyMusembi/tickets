@@ -30,7 +30,7 @@ func (t *TicketController) CreateTicket(c *gin.Context) {
 	var req CreateTicketRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "not json format", "details": err.Error()})
 		slog.Error("Invalid request payload", "error", err)
 		return
 	}
@@ -43,8 +43,8 @@ func (t *TicketController) CreateTicket(c *gin.Context) {
 		Status:      req.Status, // now matches int16
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create ticket"})
-		slog.Error("Failed to create ticket", "error", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to create ticket", "details": err.Error()})
+		slog.Error("Failed to create ticket", "error", err.Error())
 		return
 	}
 	// publish to RabbitMQ
