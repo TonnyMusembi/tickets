@@ -27,8 +27,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.assignTicketStmt, err = db.PrepareContext(ctx, assignTicket); err != nil {
 		return nil, fmt.Errorf("error preparing query AssignTicket: %w", err)
 	}
+	if q.createCustomerStmt, err = db.PrepareContext(ctx, createCustomer); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateCustomer: %w", err)
+	}
 	if q.createTicketStmt, err = db.PrepareContext(ctx, createTicket); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateTicket: %w", err)
+	}
+	if q.createTransactionStmt, err = db.PrepareContext(ctx, createTransaction); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateTransaction: %w", err)
 	}
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
@@ -38,6 +44,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getTicketByTitleAndUserStmt, err = db.PrepareContext(ctx, getTicketByTitleAndUser); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTicketByTitleAndUser: %w", err)
+	}
+	if q.getTransanctionByIDStmt, err = db.PrepareContext(ctx, getTransanctionByID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTransanctionByID: %w", err)
 	}
 	if q.getUserByEmailStmt, err = db.PrepareContext(ctx, getUserByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserByEmail: %w", err)
@@ -50,6 +59,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.listTicketsStmt, err = db.PrepareContext(ctx, listTickets); err != nil {
 		return nil, fmt.Errorf("error preparing query ListTickets: %w", err)
+	}
+	if q.listTransactionsStmt, err = db.PrepareContext(ctx, listTransactions); err != nil {
+		return nil, fmt.Errorf("error preparing query ListTransactions: %w", err)
 	}
 	if q.listUsersStmt, err = db.PrepareContext(ctx, listUsers); err != nil {
 		return nil, fmt.Errorf("error preparing query ListUsers: %w", err)
@@ -70,9 +82,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing assignTicketStmt: %w", cerr)
 		}
 	}
+	if q.createCustomerStmt != nil {
+		if cerr := q.createCustomerStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createCustomerStmt: %w", cerr)
+		}
+	}
 	if q.createTicketStmt != nil {
 		if cerr := q.createTicketStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createTicketStmt: %w", cerr)
+		}
+	}
+	if q.createTransactionStmt != nil {
+		if cerr := q.createTransactionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createTransactionStmt: %w", cerr)
 		}
 	}
 	if q.createUserStmt != nil {
@@ -88,6 +110,11 @@ func (q *Queries) Close() error {
 	if q.getTicketByTitleAndUserStmt != nil {
 		if cerr := q.getTicketByTitleAndUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getTicketByTitleAndUserStmt: %w", cerr)
+		}
+	}
+	if q.getTransanctionByIDStmt != nil {
+		if cerr := q.getTransanctionByIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTransanctionByIDStmt: %w", cerr)
 		}
 	}
 	if q.getUserByEmailStmt != nil {
@@ -108,6 +135,11 @@ func (q *Queries) Close() error {
 	if q.listTicketsStmt != nil {
 		if cerr := q.listTicketsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listTicketsStmt: %w", cerr)
+		}
+	}
+	if q.listTransactionsStmt != nil {
+		if cerr := q.listTransactionsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing listTransactionsStmt: %w", cerr)
 		}
 	}
 	if q.listUsersStmt != nil {
@@ -165,14 +197,18 @@ type Queries struct {
 	db                            DBTX
 	tx                            *sql.Tx
 	assignTicketStmt              *sql.Stmt
+	createCustomerStmt            *sql.Stmt
 	createTicketStmt              *sql.Stmt
+	createTransactionStmt         *sql.Stmt
 	createUserStmt                *sql.Stmt
 	getTicketStmt                 *sql.Stmt
 	getTicketByTitleAndUserStmt   *sql.Stmt
+	getTransanctionByIDStmt       *sql.Stmt
 	getUserByEmailStmt            *sql.Stmt
 	getUserByEmailExcludingIDStmt *sql.Stmt
 	getUserByIDStmt               *sql.Stmt
 	listTicketsStmt               *sql.Stmt
+	listTransactionsStmt          *sql.Stmt
 	listUsersStmt                 *sql.Stmt
 	updateTicketStatusStmt        *sql.Stmt
 	updateUserStmt                *sql.Stmt
@@ -183,14 +219,18 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                            tx,
 		tx:                            tx,
 		assignTicketStmt:              q.assignTicketStmt,
+		createCustomerStmt:            q.createCustomerStmt,
 		createTicketStmt:              q.createTicketStmt,
+		createTransactionStmt:         q.createTransactionStmt,
 		createUserStmt:                q.createUserStmt,
 		getTicketStmt:                 q.getTicketStmt,
 		getTicketByTitleAndUserStmt:   q.getTicketByTitleAndUserStmt,
+		getTransanctionByIDStmt:       q.getTransanctionByIDStmt,
 		getUserByEmailStmt:            q.getUserByEmailStmt,
 		getUserByEmailExcludingIDStmt: q.getUserByEmailExcludingIDStmt,
 		getUserByIDStmt:               q.getUserByIDStmt,
 		listTicketsStmt:               q.listTicketsStmt,
+		listTransactionsStmt:          q.listTransactionsStmt,
 		listUsersStmt:                 q.listUsersStmt,
 		updateTicketStatusStmt:        q.updateTicketStatusStmt,
 		updateUserStmt:                q.updateUserStmt,

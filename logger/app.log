@@ -38,3 +38,56 @@
 {"time":"2025-09-15T16:30:39.676167+03:00","level":"INFO","msg":"Published message to queue","queue":"user_events","body":"{\"payload\":{\"email\":\"arsenal1@gmail.com\",\"full_name\":\"Arsenal1\"},\"type\":\"user.created\"}"}
 {"time":"2025-09-15T16:30:39.676899+03:00","level":"INFO","msg":"User created successfully","user_id":22}
 {"time":"2025-09-15T16:55:24.650565+03:00","level":"INFO","msg":"Users listed successfully","count":9}
+{"time":"2025-09-16T16:52:18.413662+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-16T16:54:02.522484+03:00","level":"INFO","msg":"Fetched tickets successfully","count":2}
+{"time":"2025-09-16T16:57:39.239687+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":1}
+{"time":"2025-09-16T16:57:41.8671+03:00","level":"ERROR","msg":"Ticket not found","error":"sql: no rows in result set"}
+{"time":"2025-09-16T16:57:44.411212+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":3}
+{"time":"2025-09-16T16:57:46.881382+03:00","level":"ERROR","msg":"Ticket not found","error":"sql: no rows in result set"}
+{"time":"2025-09-16T16:57:49.077766+03:00","level":"ERROR","msg":"Ticket not found","error":"sql: no rows in result set"}
+{"time":"2025-09-16T16:57:51.552313+03:00","level":"ERROR","msg":"Ticket not found","error":"sql: no rows in result set"}
+{"time":"2025-09-16T16:57:55.015944+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":1}
+{"time":"2025-09-17T12:31:10.469934+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-17T12:31:18.356907+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":1}
+{"time":"2025-09-18T12:59:00.486463+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-18T12:59:15.448832+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":1}
+{"time":"2025-09-18T12:59:18.327661+03:00","level":"INFO","msg":"Fetched tickets successfully","count":2}
+{"time":"2025-09-18T13:02:07.971172+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":1}
+{"time":"2025-09-18T13:02:14.559262+03:00","level":"INFO","msg":"Fetched ticket successfully","ticket_id":1}
+{"time":"2025-09-18T14:59:50.393716+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-18T15:03:57.344375+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-18T15:06:08.293325+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-18T15:06:21.655712+03:00","level":"INFO","msg":"Users listed successfully","count":0}
+{"time":"2025-09-18T15:06:58.32666+03:00","level":"INFO","msg":"Users listed successfully","count":0}
+{"time":"2025-09-18T15:07:42.232472+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-18T15:10:25.584969+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-18T15:10:29.098661+03:00","level":"INFO","msg":"transactions listed successfully","count":0}
+{"time":"2025-09-18T15:24:34.599637+03:00","level":"INFO","msg":"transactions listed successfully","count":0}
+{"time":"2025-09-18T15:26:47.702752+03:00","level":"INFO","msg":"Fetched tickets successfully","count":2}
+{"time":"2025-09-18T15:26:59.993537+03:00","level":"INFO","msg":"Fetched tickets successfully","count":2}
+{"time":"2025-09-19T15:33:21.201661+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T15:33:55.403181+03:00","level":"ERROR","msg":"Transaction not found","error":"Error 1054 (42S22): Unknown column 'id' in 'field list'"}
+{"time":"2025-09-19T15:34:23.335093+03:00","level":"INFO","msg":"transactions listed successfully","count":0}
+{"time":"2025-09-19T15:34:29.345349+03:00","level":"ERROR","msg":"Transaction not found","error":"Error 1054 (42S22): Unknown column 'id' in 'field list'"}
+{"time":"2025-09-19T15:37:30.427593+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T15:37:57.464359+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-19T15:51:40.978769+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T15:53:34.578731+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T15:55:23.8773+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T15:56:09.719552+03:00","level":"INFO","msg":"transactions listed successfully","count":0}
+{"time":"2025-09-19T15:57:00.607213+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T16:12:42.089777+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T16:14:33.311937+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T16:18:23.100076+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-19T16:18:30.456016+03:00","level":"ERROR","msg":"Failed to create transaction","error":"Error 1062 (23000): Duplicate entry 'TXN123456' for key 'transactions.transaction_id'"}
+{"time":"2025-09-19T16:18:48.8382+03:00","level":"INFO","msg":"Transaction created successfully","id":3}
+{"time":"2025-09-19T16:19:22.144729+03:00","level":"INFO","msg":"transactions listed successfully","count":2}
+{"time":"2025-09-19T16:19:29.951101+03:00","level":"INFO","msg":"transactions listed successfully","count":2}
+{"time":"2025-09-19T16:19:32.194349+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-19T16:19:34.605122+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-19T16:19:36.446483+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-19T16:19:40.829989+03:00","level":"INFO","msg":"transactions listed successfully","count":2}
+{"time":"2025-09-19T16:57:45.801436+03:00","level":"INFO","msg":"transactions listed successfully","count":2}
+{"time":"2025-09-19T16:57:51.196661+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-19T16:57:52.925642+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-19T16:59:35.824405+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}

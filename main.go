@@ -36,7 +36,6 @@ func initLogger() *slog.Logger {
 
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
-
 	return logger
 }
 func main() {
@@ -64,6 +63,7 @@ func main() {
 	queries := db.New(dbConn)
 	tc := &controllers.TicketController{Queries: queries, DB: dbConn}
 	uc := &controllers.UserController{Queries: queries, DB: dbConn}
+	ct := &controllers.TransactionsController{Queries: queries, DB: dbConn}
 
 	// Setup Gin
 	r := gin.Default()
@@ -76,6 +76,8 @@ func main() {
 	r.POST("/users", uc.CreateUser)
 	r.GET("/users", uc.ListUsers)
 	r.POST("/updateuser/:id", uc.UpdateUser)
-
+	r.GET("/transactions", ct.ListTransactions)
+	r.GET("/transaction/:id", ct.GetByID)
+	r.POST("transactions", ct.CreateTransactions)
 	r.Run(":8082")
 }

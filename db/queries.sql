@@ -38,7 +38,6 @@ WHERE title = ? AND created_by = ?
 LIMIT 1;
 
 
-
 -- name: CreateUser :execresult
 INSERT INTO users (full_name, email,  role)
 VALUES (?, ?, ?);  
@@ -73,3 +72,26 @@ SELECT * FROM users
 WHERE email = ? AND id != ?
 LIMIT 1;
 
+-- name: CreateTransaction :execresult
+INSERT INTO transactions (transaction_id, user_id,amount,currency,status,payment_method)
+VALUES(?,?,?,?,?,?);
+
+-- name: ListTransactions :many
+SELECT
+id,
+transaction_id,
+amount,
+currency,
+payment_method
+FROM transactions
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
+
+-- name: GetTransanctionByID :one
+SELECT *FROM transactions 
+WHERE id = ? 
+LIMIT 1;
+
+-- name: CreateCustomer :execresult
+INSERT INTO customers (full_name, email, phone_number)
+VALUES (?, ?, ?);
