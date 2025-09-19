@@ -26,6 +26,21 @@ func (q *Queries) AssignTicket(ctx context.Context, arg AssignTicketParams) erro
 	return err
 }
 
+const createCustomer = `-- name: CreateCustomer :execresult
+INSERT INTO customers (full_name, email, phone_number)
+VALUES (?, ?, ?)
+`
+
+type CreateCustomerParams struct {
+	FullName    string `db:"full_name"`
+	Email       string `db:"email"`
+	PhoneNumber string `db:"phone_number"`
+}
+
+func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) (sql.Result, error) {
+	return q.exec(ctx, q.createCustomerStmt, createCustomer, arg.FullName, arg.Email, arg.PhoneNumber)
+}
+
 const createTicket = `-- name: CreateTicket :execresult
 INSERT INTO tickets (title, description, created_by, priority,status)
 VALUES (?, ?, ?, ?,?)
@@ -46,6 +61,31 @@ func (q *Queries) CreateTicket(ctx context.Context, arg CreateTicketParams) (sql
 		arg.CreatedBy,
 		arg.Priority,
 		arg.Status,
+	)
+}
+
+const createTransaction = `-- name: CreateTransaction :execresult
+INSERT INTO transactions (transaction_id, user_id,amount,currency,status,payment_method)
+VALUES(?,?,?,?,?,?)
+`
+
+type CreateTransactionParams struct {
+	TransactionID string         `db:"transaction_id"`
+	UserID        int32          `db:"user_id"`
+	Amount        string         `db:"amount"`
+	Currency      string         `db:"currency"`
+	Status        int16          `db:"status"`
+	PaymentMethod sql.NullString `db:"payment_method"`
+}
+
+func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (sql.Result, error) {
+	return q.exec(ctx, q.createTransactionStmt, createTransaction,
+		arg.TransactionID,
+		arg.UserID,
+		arg.Amount,
+		arg.Currency,
+		arg.Status,
+		arg.PaymentMethod,
 	)
 }
 
@@ -108,6 +148,29 @@ func (q *Queries) GetTicketByTitleAndUser(ctx context.Context, arg GetTicketByTi
 		&i.Priority,
 		&i.CreatedBy,
 		&i.AssignedTo,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTransanctionByID = `-- name: GetTransanctionByID :one
+SELECT id, transaction_id, user_id, amount, currency, status, payment_method, created_at, updated_atFROM transactions 
+WHERE id = ? 
+LIMIT 1
+`
+
+func (q *Queries) GetTransanctionByID(ctx context.Context, id int32) (Transaction, error) {
+	row := q.queryRow(ctx, q.getTransanctionByIDStmt, getTransanctionByID, id)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.TransactionID,
+		&i.UserID,
+		&i.Amount,
+		&i.Currency,
+		&i.Status,
+		&i.PaymentMethod,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -217,6 +280,60 @@ func (q *Queries) ListTickets(ctx context.Context, arg ListTicketsParams) ([]Tic
 			&i.AssignedTo,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTransactions = `-- name: ListTransactions :many
+SELECT
+id,
+transaction_id,
+amount,
+currency,
+payment_method
+FROM transactions
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
+`
+
+type ListTransactionsParams struct {
+	Limit  int32 `db:"limit"`
+	Offset int32 `db:"offset"`
+}
+
+type ListTransactionsRow struct {
+	ID            int32          `db:"id"`
+	TransactionID string         `db:"transaction_id"`
+	Amount        string         `db:"amount"`
+	Currency      string         `db:"currency"`
+	PaymentMethod sql.NullString `db:"payment_method"`
+}
+
+func (q *Queries) ListTransactions(ctx context.Context, arg ListTransactionsParams) ([]ListTransactionsRow, error) {
+	rows, err := q.query(ctx, q.listTransactionsStmt, listTransactions, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListTransactionsRow{}
+	for rows.Next() {
+		var i ListTransactionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.TransactionID,
+			&i.Amount,
+			&i.Currency,
+			&i.PaymentMethod,
 		); err != nil {
 			return nil, err
 		}

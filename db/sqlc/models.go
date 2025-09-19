@@ -54,6 +54,14 @@ func (ns NullUsersRole) Value() (driver.Value, error) {
 	return string(ns.UsersRole), nil
 }
 
+type Customer struct {
+	ID          int64        `db:"id"`
+	FullName    string       `db:"full_name"`
+	Email       string       `db:"email"`
+	PhoneNumber string       `db:"phone_number"`
+	CreatedAt   sql.NullTime `db:"created_at"`
+}
+
 type Ticket struct {
 	ID          int64         `db:"id"`
 	Title       string        `db:"title"`
@@ -64,6 +72,18 @@ type Ticket struct {
 	AssignedTo  sql.NullInt64 `db:"assigned_to"`
 	CreatedAt   time.Time     `db:"created_at"`
 	UpdatedAt   time.Time     `db:"updated_at"`
+}
+
+type Transaction struct {
+	ID            int32          `db:"id"`
+	TransactionID string         `db:"transaction_id"`
+	UserID        int32          `db:"user_id"`
+	Amount        string         `db:"amount"`
+	Currency      string         `db:"currency"`
+	Status        int16          `db:"status"`
+	PaymentMethod sql.NullString `db:"payment_method"`
+	CreatedAt     sql.NullTime   `db:"created_at"`
+	UpdatedAt     sql.NullTime   `db:"updated_at"`
 }
 
 type User struct {
