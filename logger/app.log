@@ -91,3 +91,34 @@
 {"time":"2025-09-19T16:57:51.196661+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
 {"time":"2025-09-19T16:57:52.925642+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
 {"time":"2025-09-19T16:59:35.824405+03:00","level":"ERROR","msg":"Error 1054 (42S22): Unknown column 'id' in 'field list'","error":"not found"}
+{"time":"2025-09-26T12:23:37.633032083+03:00","level":"ERROR","msg":"Error pinging DB","error":"Error 1698 (28000): Access denied for user 'root'@'localhost'"}
+{"time":"2025-09-26T12:23:37.633330528+03:00","level":"INFO","msg":"Failed to connect DB:error pinging DB: Error 1698 (28000): Access denied for user 'root'@'localhost'"}
+{"time":"2025-09-27T13:03:44.264046307+03:00","level":"ERROR","msg":"Error pinging DB","error":"Error 1049 (42000): Unknown database 'tickets'"}
+{"time":"2025-09-27T13:03:44.264788375+03:00","level":"INFO","msg":"Failed to connect DB:error pinging DB: Error 1049 (42000): Unknown database 'tickets'"}
+{"time":"2025-09-27T13:04:28.657622992+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-27T15:07:32.080665938+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-28T00:11:02.980025943+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-29T13:25:17.589811742+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-29T14:42:06.318166148+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-29T14:47:02.451808747+03:00","level":"INFO","msg":"Users listed successfully","count":0}
+{"time":"2025-09-29T14:47:13.61549225+03:00","level":"INFO","msg":"Fetched tickets successfully","count":0}
+{"time":"2025-09-29T14:49:41.721508804+03:00","level":"INFO","msg":"Published message to queue","queue":"ticket_events","body":"{\"payload\":{\"Locker\":{}},\"type\":\"ticket.created\"}"}
+{"time":"2025-09-29T14:49:41.722241981+03:00","level":"INFO","msg":"Ticket created successfully","ticket_id":{"Locker":{}}}
+{"time":"2025-09-29T14:51:12.205192992+03:00","level":"ERROR","msg":"Failed to create ticket","error":"Error 1062 (23000): Duplicate entry 'Unable to access dashboard' for key 'tickets.title'"}
+{"time":"2025-09-29T14:51:40.273617378+03:00","level":"INFO","msg":"Published message to queue","queue":"ticket_events","body":"{\"payload\":{\"Locker\":{}},\"type\":\"ticket.created\"}"}
+{"time":"2025-09-29T14:51:40.273661845+03:00","level":"INFO","msg":"Ticket created successfully","ticket_id":{"Locker":{}}}
+{"time":"2025-09-29T14:58:55.131004315+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-29T14:59:07.995451202+03:00","level":"ERROR","msg":"Failed to create ticket","error":"Error 1062 (23000): Duplicate entry 'tickets' for key 'tickets.title'"}
+{"time":"2025-09-29T14:59:19.811797476+03:00","level":"INFO","msg":"Published message to queue","queue":"ticket_events","body":"{\"payload\":{\"Locker\":{}},\"type\":\"ticket.created\"}"}
+{"time":"2025-09-29T14:59:19.81185128+03:00","level":"INFO","msg":"Ticket created successfully","ticket_id":{"Locker":{}}}
+{"time":"2025-09-29T15:49:05.035666445+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-29T15:52:15.39119801+03:00","level":"INFO","msg":"Database connection established successfully"}
+{"time":"2025-09-29T15:52:28.391336802+03:00","level":"ERROR","msg":"Failed to create ticket","error":"Error 1062 (23000): Duplicate entry 'tickets1' for key 'tickets.title'"}
+{"time":"2025-09-29T15:52:35.745713736+03:00","level":"INFO","msg":"Fetched tickets successfully","count":3}
+{"time":"2025-09-29T16:24:32.688769084+03:00","level":"ERROR","msg":"Invalid request payload","error":"invalid character 'q' looking for beginning of value"}
+{"time":"2025-09-29T16:24:52.116219986+03:00","level":"ERROR","msg":"Failed to create user","error":"Error 1364 (HY000): Field 'password' doesn't have a default value"}
+{"time":"2025-09-29T16:25:25.642366548+03:00","level":"ERROR","msg":"Failed to create user","error":"Error 1364 (HY000): Field 'password' doesn't have a default value"}
+{"time":"2025-09-29T16:25:48.938079293+03:00","level":"ERROR","msg":"Failed to create user","error":"Error 1364 (HY000): Field 'password' doesn't have a default value"}
+{"time":"2025-09-29T16:34:09.675185798+03:00","level":"INFO","msg":"Users listed successfully","count":0}
+{"time":"2025-09-29T16:34:21.196706205+03:00","level":"INFO","msg":"Users listed successfully","count":0}
+{"time":"2025-09-29T16:34:28.839287342+03:00","level":"INFO","msg":"Fetched tickets successfully","count":3}

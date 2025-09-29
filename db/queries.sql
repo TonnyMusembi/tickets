@@ -4,7 +4,7 @@ VALUES (?, ?, ?, ?,?);
 
 
 -- name: ListTickets :many
-SELECT 
+SELECT
     id,
     title,
     description,
@@ -40,16 +40,16 @@ LIMIT 1;
 
 -- name: CreateUser :execresult
 INSERT INTO users (full_name, email,  role)
-VALUES (?, ?, ?);  
+VALUES (?, ?, ?);
 -- name: GetUserByEmail :one
 SELECT * FROM users
-WHERE email = ? LIMIT 1;    
+WHERE email = ? LIMIT 1;
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE id = ? LIMIT 1;
 
 -- name: ListUsers :many
-SELECT 
+SELECT
     id,
     full_name,
     email,
@@ -57,11 +57,11 @@ SELECT
     created_at
 FROM users
 ORDER BY created_at DESC
-LIMIT ? OFFSET ?;   
+LIMIT ? OFFSET ?;
 
 -- name: UpdateUser :exec
 UPDATE users
-SET 
+SET
   full_name = sqlc.arg(full_name),
   email     = sqlc.arg(email),
   role      = sqlc.arg(role)
@@ -88,10 +88,14 @@ ORDER BY created_at DESC
 LIMIT ? OFFSET ?;
 
 -- name: GetTransanctionByID :one
-SELECT *FROM transactions 
-WHERE id = ? 
+SELECT *FROM transactions
+WHERE id = ?
 LIMIT 1;
 
 -- name: CreateCustomer :execresult
 INSERT INTO customers (full_name, email, phone_number)
 VALUES (?, ?, ?);
+
+-- name: GetCustomerByEmail :one
+SELECT * FROM customers
+WHERE email = ? LIMIT 1;
