@@ -10,6 +10,9 @@ import (
 	"tickets/controllers"
 	db "tickets/db/sqlc"
 	"tickets/publish"
+	"tickets/sms"
+
+	"tickets/handlers"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -64,6 +67,9 @@ func main() {
 	tc := &controllers.TicketController{Queries: queries, DB: dbConn}
 	uc := &controllers.UserController{Queries: queries, DB: dbConn}
 	ct := &controllers.TransactionsController{Queries: queries, DB: dbConn}
+	custc := &controllers.CustomerController{Queries: queries, DB: dbConn}
+	tw := sms.NewTwilioProvider()
+	auth := handlers.NewAuthHandler(queries, tw)
 
 	// Setup Gin
 	r := gin.Default()
@@ -78,6 +84,11 @@ func main() {
 	r.POST("/updateuser/:id", uc.UpdateUser)
 	r.GET("/transactions", ct.ListTransactions)
 	r.GET("/transaction/:id", ct.GetByID)
-	r.POST("transactions", ct.CreateTransactions)
+	r.POST("/transactions", ct.CreateTransactions)
+	r.POST("/customer", custc.CreateCustomer)
+	r.GET("/customers", custc.GetCustomers)
+	r.POST("/send_otp", auth.Login)
+	r.POST("/verify_otp", auth.VerifyOTP)
+	r.POST("/register", auth.Register)
 	r.Run(":8082")
 }

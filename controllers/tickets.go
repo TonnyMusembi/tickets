@@ -29,35 +29,59 @@ type CreateTicketRequest struct {
 func (t *TicketController) CreateTicket(c *gin.Context) {
 	var req CreateTicketRequest
 
+	// 1️⃣ Validate JSON body
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "not json format", "details": err.Error()})
 		slog.Error("Invalid request payload", "error", err)
 		return
 	}
 
-	ticket, err := t.Queries.CreateTicket(c, db.CreateTicketParams{
+	// 2️⃣ Insert into DB
+	result, err := t.Queries.CreateTicket(c, db.CreateTicketParams{
 		Title:       req.Title,
 		Description: req.Description,
 		CreatedBy:   req.CreatedBy,
 		Priority:    req.Priority,
-		Status:      req.Status, // now matches int16
+		Status:      req.Status, // int16 matches
 	})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to create ticket", "details": err.Error()})
 		slog.Error("Failed to create ticket", "error", err.Error())
 		return
 	}
-	// publish to RabbitMQ
-	event := map[string]interface{}{
-		"type":    "ticket.created",
-		"payload": ticket,
+
+	// 3️⃣ Get the inserted ID without querying again
+	ticketID, err := result.LastInsertId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve insert ID", "details": err.Error()})
+		slog.Error("Failed to retrieve insert ID", "error", err)
+		return
 	}
+
+	// 4️⃣ Publish to RabbitMQ
+	event := map[string]interface{}{
+		"type": "ticket.created",
+		"payload": map[string]interface{}{
+			"id":          ticketID,
+			"title":       req.Title,
+			"description": req.Description,
+			"created_by":  req.CreatedBy,
+			"priority":    req.Priority,
+			"status":      req.Status,
+		},
+	}
+
 	body, _ := json.Marshal(event)
 	if err := publish.Publish("ticket_events", body); err != nil {
 		slog.Error("Failed to publish ticket event", "error", err)
 	}
-	c.JSON(http.StatusOK, gin.H{"ticket_id": ticket})
-	slog.Info("Ticket created successfully", "ticket_id", ticket)
+
+	// 5️⃣ Response
+	c.JSON(http.StatusOK, gin.H{
+		"ticket_id": ticketID,
+		"message":   "Ticket created successfully",
+	})
+	slog.Info("Ticket created successfully", "ticket_id", ticketID)
 }
 
 // List Tickets

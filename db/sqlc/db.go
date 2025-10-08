@@ -30,6 +30,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createCustomerStmt, err = db.PrepareContext(ctx, createCustomer); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateCustomer: %w", err)
 	}
+	if q.createOTPStmt, err = db.PrepareContext(ctx, createOTP); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateOTP: %w", err)
+	}
+	if q.createProfileStmt, err = db.PrepareContext(ctx, createProfile); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateProfile: %w", err)
+	}
 	if q.createTicketStmt, err = db.PrepareContext(ctx, createTicket); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateTicket: %w", err)
 	}
@@ -39,8 +45,20 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.deleteExpiredOTPsStmt, err = db.PrepareContext(ctx, deleteExpiredOTPs); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteExpiredOTPs: %w", err)
+	}
 	if q.getCustomerByEmailStmt, err = db.PrepareContext(ctx, getCustomerByEmail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCustomerByEmail: %w", err)
+	}
+	if q.getCustomersStmt, err = db.PrepareContext(ctx, getCustomers); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCustomers: %w", err)
+	}
+	if q.getLatestOTPByProfileIDStmt, err = db.PrepareContext(ctx, getLatestOTPByProfileID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetLatestOTPByProfileID: %w", err)
+	}
+	if q.getProfileByPhoneStmt, err = db.PrepareContext(ctx, getProfileByPhone); err != nil {
+		return nil, fmt.Errorf("error preparing query GetProfileByPhone: %w", err)
 	}
 	if q.getTicketStmt, err = db.PrepareContext(ctx, getTicket); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTicket: %w", err)
@@ -60,6 +78,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getUserByIDStmt, err = db.PrepareContext(ctx, getUserByID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserByID: %w", err)
 	}
+	if q.incrementOTPAttemptsStmt, err = db.PrepareContext(ctx, incrementOTPAttempts); err != nil {
+		return nil, fmt.Errorf("error preparing query IncrementOTPAttempts: %w", err)
+	}
 	if q.listTicketsStmt, err = db.PrepareContext(ctx, listTickets); err != nil {
 		return nil, fmt.Errorf("error preparing query ListTickets: %w", err)
 	}
@@ -68,6 +89,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.listUsersStmt, err = db.PrepareContext(ctx, listUsers); err != nil {
 		return nil, fmt.Errorf("error preparing query ListUsers: %w", err)
+	}
+	if q.markOTPVerifiedStmt, err = db.PrepareContext(ctx, markOTPVerified); err != nil {
+		return nil, fmt.Errorf("error preparing query MarkOTPVerified: %w", err)
 	}
 	if q.updateTicketStatusStmt, err = db.PrepareContext(ctx, updateTicketStatus); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateTicketStatus: %w", err)
@@ -90,6 +114,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createCustomerStmt: %w", cerr)
 		}
 	}
+	if q.createOTPStmt != nil {
+		if cerr := q.createOTPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createOTPStmt: %w", cerr)
+		}
+	}
+	if q.createProfileStmt != nil {
+		if cerr := q.createProfileStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createProfileStmt: %w", cerr)
+		}
+	}
 	if q.createTicketStmt != nil {
 		if cerr := q.createTicketStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createTicketStmt: %w", cerr)
@@ -105,9 +139,29 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
 		}
 	}
+	if q.deleteExpiredOTPsStmt != nil {
+		if cerr := q.deleteExpiredOTPsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteExpiredOTPsStmt: %w", cerr)
+		}
+	}
 	if q.getCustomerByEmailStmt != nil {
 		if cerr := q.getCustomerByEmailStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getCustomerByEmailStmt: %w", cerr)
+		}
+	}
+	if q.getCustomersStmt != nil {
+		if cerr := q.getCustomersStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCustomersStmt: %w", cerr)
+		}
+	}
+	if q.getLatestOTPByProfileIDStmt != nil {
+		if cerr := q.getLatestOTPByProfileIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getLatestOTPByProfileIDStmt: %w", cerr)
+		}
+	}
+	if q.getProfileByPhoneStmt != nil {
+		if cerr := q.getProfileByPhoneStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getProfileByPhoneStmt: %w", cerr)
 		}
 	}
 	if q.getTicketStmt != nil {
@@ -140,6 +194,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getUserByIDStmt: %w", cerr)
 		}
 	}
+	if q.incrementOTPAttemptsStmt != nil {
+		if cerr := q.incrementOTPAttemptsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing incrementOTPAttemptsStmt: %w", cerr)
+		}
+	}
 	if q.listTicketsStmt != nil {
 		if cerr := q.listTicketsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listTicketsStmt: %w", cerr)
@@ -153,6 +212,11 @@ func (q *Queries) Close() error {
 	if q.listUsersStmt != nil {
 		if cerr := q.listUsersStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listUsersStmt: %w", cerr)
+		}
+	}
+	if q.markOTPVerifiedStmt != nil {
+		if cerr := q.markOTPVerifiedStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing markOTPVerifiedStmt: %w", cerr)
 		}
 	}
 	if q.updateTicketStatusStmt != nil {
@@ -206,19 +270,27 @@ type Queries struct {
 	tx                            *sql.Tx
 	assignTicketStmt              *sql.Stmt
 	createCustomerStmt            *sql.Stmt
+	createOTPStmt                 *sql.Stmt
+	createProfileStmt             *sql.Stmt
 	createTicketStmt              *sql.Stmt
 	createTransactionStmt         *sql.Stmt
 	createUserStmt                *sql.Stmt
+	deleteExpiredOTPsStmt         *sql.Stmt
 	getCustomerByEmailStmt        *sql.Stmt
+	getCustomersStmt              *sql.Stmt
+	getLatestOTPByProfileIDStmt   *sql.Stmt
+	getProfileByPhoneStmt         *sql.Stmt
 	getTicketStmt                 *sql.Stmt
 	getTicketByTitleAndUserStmt   *sql.Stmt
 	getTransanctionByIDStmt       *sql.Stmt
 	getUserByEmailStmt            *sql.Stmt
 	getUserByEmailExcludingIDStmt *sql.Stmt
 	getUserByIDStmt               *sql.Stmt
+	incrementOTPAttemptsStmt      *sql.Stmt
 	listTicketsStmt               *sql.Stmt
 	listTransactionsStmt          *sql.Stmt
 	listUsersStmt                 *sql.Stmt
+	markOTPVerifiedStmt           *sql.Stmt
 	updateTicketStatusStmt        *sql.Stmt
 	updateUserStmt                *sql.Stmt
 }
@@ -229,19 +301,27 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		tx:                            tx,
 		assignTicketStmt:              q.assignTicketStmt,
 		createCustomerStmt:            q.createCustomerStmt,
+		createOTPStmt:                 q.createOTPStmt,
+		createProfileStmt:             q.createProfileStmt,
 		createTicketStmt:              q.createTicketStmt,
 		createTransactionStmt:         q.createTransactionStmt,
 		createUserStmt:                q.createUserStmt,
+		deleteExpiredOTPsStmt:         q.deleteExpiredOTPsStmt,
 		getCustomerByEmailStmt:        q.getCustomerByEmailStmt,
+		getCustomersStmt:              q.getCustomersStmt,
+		getLatestOTPByProfileIDStmt:   q.getLatestOTPByProfileIDStmt,
+		getProfileByPhoneStmt:         q.getProfileByPhoneStmt,
 		getTicketStmt:                 q.getTicketStmt,
 		getTicketByTitleAndUserStmt:   q.getTicketByTitleAndUserStmt,
 		getTransanctionByIDStmt:       q.getTransanctionByIDStmt,
 		getUserByEmailStmt:            q.getUserByEmailStmt,
 		getUserByEmailExcludingIDStmt: q.getUserByEmailExcludingIDStmt,
 		getUserByIDStmt:               q.getUserByIDStmt,
+		incrementOTPAttemptsStmt:      q.incrementOTPAttemptsStmt,
 		listTicketsStmt:               q.listTicketsStmt,
 		listTransactionsStmt:          q.listTransactionsStmt,
 		listUsersStmt:                 q.listUsersStmt,
+		markOTPVerifiedStmt:           q.markOTPVerifiedStmt,
 		updateTicketStatusStmt:        q.updateTicketStatusStmt,
 		updateUserStmt:                q.updateUserStmt,
 	}
