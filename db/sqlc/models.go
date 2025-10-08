@@ -62,6 +62,25 @@ type Customer struct {
 	CreatedAt   sql.NullTime `db:"created_at"`
 }
 
+type OtpCode struct {
+	ID        int32     `db:"id"`
+	ProfileID int32     `db:"profile_id"`
+	OtpCode   string    `db:"otp_code"`
+	ExpiresAt time.Time `db:"expires_at"`
+	Verified  bool      `db:"verified"`
+	Attempts  int32     `db:"attempts"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+type Profile struct {
+	ID           int32          `db:"id"`
+	Phone        string         `db:"phone"`
+	PasswordHash string         `db:"password_hash"`
+	FullName     sql.NullString `db:"full_name"`
+	CreatedAt    time.Time      `db:"created_at"`
+	UpdatedAt    time.Time      `db:"updated_at"`
+}
+
 type Ticket struct {
 	ID          int64         `db:"id"`
 	Title       string        `db:"title"`

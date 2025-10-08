@@ -1,7 +1,6 @@
 -- name: CreateTicket :execresult
-INSERT INTO tickets (title, description, created_by, priority,status)
-VALUES (?, ?, ?, ?,?);
-
+INSERT INTO tickets (title, description, created_by, priority, status)
+VALUES (?, ?, ?, ?, ?);
 
 -- name: ListTickets :many
 SELECT
@@ -99,3 +98,46 @@ VALUES (?, ?, ?);
 -- name: GetCustomerByEmail :one
 SELECT * FROM customers
 WHERE email = ? LIMIT 1;
+
+-- name: GetCustomers :many
+SELECT * FROM customers LIMIT ? OFFSET ?;
+
+
+
+-- db/queries.sql
+
+-- name: GetProfileByPhone :one
+SELECT id, phone, password_hash, full_name, created_at, updated_at
+FROM profiles
+WHERE phone = ?;
+
+-- name: CreateOTP :execresult
+INSERT INTO otp_codes (profile_id, otp_code, expires_at)
+VALUES (?, ?, ?);
+SELECT LAST_INSERT_ID() as id;
+
+-- name: GetLatestOTPByProfileID :one
+SELECT id, profile_id, otp_code, expires_at, verified, attempts, created_at
+FROM otp_codes
+WHERE profile_id = ?
+ORDER BY created_at DESC
+LIMIT 1;
+
+-- name: MarkOTPVerified :exec
+UPDATE otp_codes
+SET verified = TRUE
+WHERE id = ?;
+
+-- name: IncrementOTPAttempts :exec
+UPDATE otp_codes
+SET attempts = attempts + 1
+WHERE id = ?;
+
+-- name: DeleteExpiredOTPs :exec
+DELETE FROM otp_codes
+WHERE expires_at < NOW();
+
+-- name: CreateProfile :execresult
+INSERT INTO profiles (full_name, phone, password_hash)
+VALUES (?, ?, ?);
+

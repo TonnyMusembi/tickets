@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const assignTicket = `-- name: AssignTicket :exec
@@ -41,9 +42,39 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 	return q.exec(ctx, q.createCustomerStmt, createCustomer, arg.FullName, arg.Email, arg.PhoneNumber)
 }
 
+const createOTP = `-- name: CreateOTP :execresult
+INSERT INTO otp_codes (profile_id, otp_code, expires_at)
+VALUES (?, ?, ?)
+`
+
+type CreateOTPParams struct {
+	ProfileID int32     `db:"profile_id"`
+	OtpCode   string    `db:"otp_code"`
+	ExpiresAt time.Time `db:"expires_at"`
+}
+
+func (q *Queries) CreateOTP(ctx context.Context, arg CreateOTPParams) (sql.Result, error) {
+	return q.exec(ctx, q.createOTPStmt, createOTP, arg.ProfileID, arg.OtpCode, arg.ExpiresAt)
+}
+
+const createProfile = `-- name: CreateProfile :execresult
+INSERT INTO profiles (full_name, phone, password_hash)
+VALUES (?, ?, ?)
+`
+
+type CreateProfileParams struct {
+	FullName     sql.NullString `db:"full_name"`
+	Phone        string         `db:"phone"`
+	PasswordHash string         `db:"password_hash"`
+}
+
+func (q *Queries) CreateProfile(ctx context.Context, arg CreateProfileParams) (sql.Result, error) {
+	return q.exec(ctx, q.createProfileStmt, createProfile, arg.FullName, arg.Phone, arg.PasswordHash)
+}
+
 const createTicket = `-- name: CreateTicket :execresult
-INSERT INTO tickets (title, description, created_by, priority,status)
-VALUES (?, ?, ?, ?,?)
+INSERT INTO tickets (title, description, created_by, priority, status)
+VALUES (?, ?, ?, ?, ?)
 `
 
 type CreateTicketParams struct {
@@ -104,6 +135,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (sql.Res
 	return q.exec(ctx, q.createUserStmt, createUser, arg.FullName, arg.Email, arg.Role)
 }
 
+const deleteExpiredOTPs = `-- name: DeleteExpiredOTPs :exec
+DELETE FROM otp_codes
+WHERE expires_at < NOW()
+`
+
+func (q *Queries) DeleteExpiredOTPs(ctx context.Context) error {
+	_, err := q.exec(ctx, q.deleteExpiredOTPsStmt, deleteExpiredOTPs)
+	return err
+}
+
 const getCustomerByEmail = `-- name: GetCustomerByEmail :one
 SELECT id, full_name, email, phone_number, created_at FROM customers
 WHERE email = ? LIMIT 1
@@ -118,6 +159,89 @@ func (q *Queries) GetCustomerByEmail(ctx context.Context, email string) (Custome
 		&i.Email,
 		&i.PhoneNumber,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getCustomers = `-- name: GetCustomers :many
+SELECT id, full_name, email, phone_number, created_at FROM customers LIMIT ? OFFSET ?
+`
+
+type GetCustomersParams struct {
+	Limit  int32 `db:"limit"`
+	Offset int32 `db:"offset"`
+}
+
+func (q *Queries) GetCustomers(ctx context.Context, arg GetCustomersParams) ([]Customer, error) {
+	rows, err := q.query(ctx, q.getCustomersStmt, getCustomers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Customer{}
+	for rows.Next() {
+		var i Customer
+		if err := rows.Scan(
+			&i.ID,
+			&i.FullName,
+			&i.Email,
+			&i.PhoneNumber,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLatestOTPByProfileID = `-- name: GetLatestOTPByProfileID :one
+SELECT id, profile_id, otp_code, expires_at, verified, attempts, created_at
+FROM otp_codes
+WHERE profile_id = ?
+ORDER BY created_at DESC
+LIMIT 1
+`
+
+func (q *Queries) GetLatestOTPByProfileID(ctx context.Context, profileID int32) (OtpCode, error) {
+	row := q.queryRow(ctx, q.getLatestOTPByProfileIDStmt, getLatestOTPByProfileID, profileID)
+	var i OtpCode
+	err := row.Scan(
+		&i.ID,
+		&i.ProfileID,
+		&i.OtpCode,
+		&i.ExpiresAt,
+		&i.Verified,
+		&i.Attempts,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getProfileByPhone = `-- name: GetProfileByPhone :one
+
+SELECT id, phone, password_hash, full_name, created_at, updated_at
+FROM profiles
+WHERE phone = ?
+`
+
+// db/queries.sql
+func (q *Queries) GetProfileByPhone(ctx context.Context, phone string) (Profile, error) {
+	row := q.queryRow(ctx, q.getProfileByPhoneStmt, getProfileByPhone, phone)
+	var i Profile
+	err := row.Scan(
+		&i.ID,
+		&i.Phone,
+		&i.PasswordHash,
+		&i.FullName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -256,6 +380,17 @@ func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const incrementOTPAttempts = `-- name: IncrementOTPAttempts :exec
+UPDATE otp_codes
+SET attempts = attempts + 1
+WHERE id = ?
+`
+
+func (q *Queries) IncrementOTPAttempts(ctx context.Context, id int32) error {
+	_, err := q.exec(ctx, q.incrementOTPAttemptsStmt, incrementOTPAttempts, id)
+	return err
 }
 
 const listTickets = `-- name: ListTickets :many
@@ -418,6 +553,17 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]ListUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const markOTPVerified = `-- name: MarkOTPVerified :exec
+UPDATE otp_codes
+SET verified = TRUE
+WHERE id = ?
+`
+
+func (q *Queries) MarkOTPVerified(ctx context.Context, id int32) error {
+	_, err := q.exec(ctx, q.markOTPVerifiedStmt, markOTPVerified, id)
+	return err
 }
 
 const updateTicketStatus = `-- name: UpdateTicketStatus :exec
